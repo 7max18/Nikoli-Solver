@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        circle.island {
+            fill: white;
+            stroke: black;
+            stroke-width: 2;
+            transform-box: border-box;
+        }
+        text.num {
+            font-family:'Arial';
+            font-size:15px;
+            stroke:black;
+            fill:black;
+        }
+    </style>
+</head>
+<body>
+    <svg id="puzzle" width="400" height="400" style="display:block; margin:auto;">
+        <rect x="2" y="2" width="396" height="396" style="fill:url(#grid);stroke-width:4;stroke:rgb(0,0,0)" />
+        <defs>
+            <pattern id="grid" width="10%" height="10%" patternUnits="userSpaceOnUse">
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="gray" stroke-width="2" />
+            </pattern>
+        </defs>
+    </svg>
+    <div style="text-align:center; padding:5px">
+        <button id="placeButton" type="button">Place Islands</button>
+        <button id="eraseButton" type="button">Erase Islands</button>
+    </div>
+    <script>
+        const svgNS = 'http://www.w3.org/2000/svg'
+        const puzzleGrid = document.getElementById('puzzle');
+        var erasing = false;
+        var islands = new Array(9);
+        for (var i = 0; i < islands.length; i++) {
+            islands[i] = new Array(9);
+        }
+
+        for (var i = 1; i < 10; i++) {
+            for (var j = 1; j < 10; j++) {
+                islands[i - 1][j - 1] = document.createElementNS(svgNS, 'g');
+                islands[i - 1][j - 1].setAttribute('transform', 'translate(' + puzzleGrid.getAttribute('width') * (10 * (i - 5)/ 100) + ', ' + puzzleGrid.getAttribute('height') * (10 * (j - 5) / 100) + ')');
+                var c = document.createElementNS(svgNS, 'circle');
+                c.setAttribute('r', '4%');
+                c.setAttribute('cx', '50%');
+                c.setAttribute('cy', '50%');
+                c.setAttribute('class', 'island');
+                c.setAttribute('opacity', '0');
+                islands[i - 1][j - 1].appendChild(c);
+                var num = document.createElementNS(svgNS, 'text')
+                num.textContent = '0'
+                num.setAttribute('x', '50%');
+                num.setAttribute('y', '50%');
+                num.setAttribute('width', '10%');
+                num.setAttribute('height', '10%');
+                num.setAttribute('font-size', 'x-large');
+                num.setAttribute('text-anchor', 'middle');
+                num.setAttribute('dominant-baseline', 'central');
+                num.setAttribute('pointer-events', 'none');
+                num.style.fontFamily = 'Arial';
+                num.setAttribute('opacity', 0);
+                islands[i - 1][j - 1].appendChild(num);
+                puzzleGrid.append(islands[i - 1][j - 1]);
+            }
+        }
+        puzzleGrid.addEventListener('click', function (event) {
+            if (event.target && event.target.classList.contains('island')) {
+                if (erasing) {
+                    event.target.parentElement.childNodes[0].setAttribute('opacity', 0);
+                    event.target.parentElement.childNodes[1].setAttribute('opacity', 0);
+                    event.target.parentElement.childNodes[1].textContent = 0;
+                }
+                else {
+                    event.target.parentElement.childNodes[0].setAttribute('opacity', 1);
+                    event.target.parentElement.childNodes[1].setAttribute('opacity', 1);
+                    var count = parseInt(event.target.parentElement.childNodes[1].textContent);
+                    count++;
+                    if (count == 9) {
+                        count = 1;
+                    }
+                    event.target.parentElement.childNodes[1].textContent = count;
+                }
+            }
+        });
+
+        document.getElementById('placeButton').addEventListener('click', function () {
+            erasing = false
+        });
+        document.getElementById('eraseButton').addEventListener('click', function () {
+            erasing = true
+        });
+    </script>
+</body>
+</html> 
